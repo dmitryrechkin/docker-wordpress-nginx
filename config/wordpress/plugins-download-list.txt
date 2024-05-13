@@ -1,0 +1,1 @@
+https://downloads.wordpress.org/plugin/tidb-compatibility.zip
