@@ -48,15 +48,33 @@ RUN curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh
 COPY config/wordpress/wp-config.php /usr/src/wordpress/
 RUN chmod 640 /usr/src/wordpress/wp-config.php
 
+# Copy and run the secrets generation script
+COPY generate_secrets.sh /usr/src/wordpress/
+RUN chmod +x /usr/src/wordpress/generate_secrets.sh
+RUN /usr/src/wordpress/generate_secrets.sh /usr/src/wordpress/wp-secrets.php
+
 RUN mkdir -p /usr/src/wordpress/wp-content/mu-plugins
 COPY config/wordpress/wp-content/mu-plugins/* /usr/src/wordpress/wp-content/mu-plugins/
 
-# Copy the list of must-use plugins
+# Copy the list of must plugins
 COPY config/wordpress/plugins-download-list.txt /usr/src/wordpress/
+COPY config/wordpress/mu-plugins-download-list.txt /usr/src/wordpress/
+RUN chmod 640 /usr/src/wordpress/mu-plugins-download-list.txt
 RUN chmod 640 /usr/src/wordpress/plugins-download-list.txt
+
+# Copy and run the plugin installation script
+COPY download_plugins.sh /usr/src/wordpress/
+RUN chmod +x /usr/src/wordpress/download_plugins.sh
+RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/plugins-download-list.txt /var/www/html/wp-content/plugins
+RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/mu-plugins-download-list.txt /var/www/html/wp-content/mu-plugins
 
 # Fix permissions
 RUN chown -R nobody.nobody /usr/src/wordpress
+
+# Copy WordPress to the web directory, so it can work without mounting the volume
+RUN mkdir -p /var/www/html && \
+    cp -a /usr/src/wordpress/. /var/www/html/ \
+    && chown -R nobody.nobody /var/www/html
 
 # Copy the custom scripts
 COPY entrypoint.sh /entrypoint.sh
