@@ -49,7 +49,7 @@ COPY config/wordpress/wp-config.php /usr/src/wordpress/
 RUN chmod 640 /usr/src/wordpress/wp-config.php
 
 # Copy and run the secrets generation script
-COPY generate_secrets.sh /usr/src/wordpress/
+COPY root/generate_secrets.sh /usr/src/wordpress/
 RUN chmod +x /usr/src/wordpress/generate_secrets.sh
 RUN /usr/src/wordpress/generate_secrets.sh /usr/src/wordpress/wp-secrets.php
 
@@ -63,7 +63,7 @@ RUN chmod 640 /usr/src/wordpress/mu-plugins-download-list.txt
 RUN chmod 640 /usr/src/wordpress/plugins-download-list.txt
 
 # Copy and run the plugin installation script
-COPY download_plugins.sh /usr/src/wordpress/
+COPY root/download_plugins.sh /usr/src/wordpress/
 RUN chmod +x /usr/src/wordpress/download_plugins.sh
 RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/plugins-download-list.txt /var/www/html/wp-content/plugins
 RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/mu-plugins-download-list.txt /var/www/html/wp-content/mu-plugins
@@ -77,8 +77,8 @@ RUN mkdir -p /var/www/html && \
     && chown -R nobody.nobody /var/www/html
 
 # Copy the custom scripts
-COPY entrypoint.sh /entrypoint.sh
-COPY sync_wordpress.sh /sync_wordpress.sh
+COPY root/entrypoint.sh /entrypoint.sh
+COPY root/sync_wordpress.sh /sync_wordpress.sh
 
 # Give execution rights on the scripts
 RUN chmod +x /entrypoint.sh

@@ -55,6 +55,7 @@ while [[ "$#" -gt 0 ]]; do
         --project=*) project="${1#*=}"; shift ;;
         --env_file=*) env_file="${1#*=}"; shift ;;
         --image=*) image="${1#*=}"; shift ;;
+        --bucket=*) bucket="${1#*=}"; shift ;;
         --memory=*) memory="${1#*=}"; shift ;;
         --cpu=*) cpu="${1#*=}"; shift ;;
         --timeout=*) timeout="${1#*=}"; shift ;;
@@ -65,8 +66,6 @@ while [[ "$#" -gt 0 ]]; do
         *) 
             if [ -z "$service" ]; then
                 service="$1"
-            elif [ -z "$bucket" ]; then
-                bucket="$1"
             elif [ -z "$service_account" ]; then
                 service_account="$1"
             fi
@@ -75,20 +74,19 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Default values if not set
-bucket=${bucket:-$service}
 service_account=${service_account:-$service}
 
 # Check if service is provided
 if [ -z "$service" ]; then
-    echo "Usage: $0 SERVICE [BUCKET] [SERVICE_ACCOUNT] [--key=value]..."
+    echo "Usage: $0 SERVICE [SERVICE_ACCOUNT] [--key=value]..."
     echo "Parameters:"
     echo "SERVICE: The service name. (required)"
-    echo "BUCKET: The bucket name. (default: SERVICE)"
     echo "SERVICE_ACCOUNT: The service account. (default: SERVICE)"
     echo "Options:"
     echo "--region=value: The region for the service. (default: us-central1)"
     echo "--project=value: The project name for the service."
     echo "--env_file=value: The file with environment variables. (default: .env.yaml)"
+    echo "--bucket=value: The bucket name for the service."
     echo "--image=image:revision The image:revision to deploy. (default: gcr.io/project/service:latest)"
     echo "--memory=value: The maximum amount of memory the service can use. (default: 512Mi)"
     echo "--cpu=value: The maximum amount of CPU the service can use. (default: 1)"
@@ -128,8 +126,10 @@ echo "Concurrency: $concurrency"
 echo "Env File: $env_file"
 echo "Bucket: $bucket"
 
-echo "Creating bucket $bucket..."
-$SCRIPT_DIR/gcloud_create_bucket.sh $bucket $service_account $region
+# Create the bucket if provided
+if [ -n "$bucket" ]; then
+    $SCRIPT_DIR/gcloud_create_bucket.sh $bucket $service_account $region
+fi
 
 # Change directory to the root of the project
 cd $SCRIPT_DIR/..
@@ -164,10 +164,13 @@ echo "Building and deploying $service to Google Cloud Run..."
 cmd="gcloud beta run deploy $service \
     --execution-environment gen2 \
     --allow-unauthenticated \
-    --add-volume=name=data,type=cloud-storage,bucket=$bucket \
-    --add-volume-mount=volume=data,mount-path='/var/www/html' \
     --port $port \
     --image $image"
+
+if [ -n "$bucket" ]; then
+    cmd="$cmd  --add-volume=name=data,type=cloud-storage,bucket=$bucket \
+    --add-volume-mount=volume=data,mount-path='/var/www/html'"
+fi
 
 # If service account is set, append it to the command
 if [ -n "$service_account" ]; then

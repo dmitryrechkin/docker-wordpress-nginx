@@ -36,7 +36,7 @@ while IFS= read -r plugin_url; do
 
     # Check if the plugin directory already exists
     if [ ! -d "$download_path/$plugin_name" ]; then
-        echo "Downloading and installing ${plugin_name}..."
+        echo "Downloading and unzipping ${plugin_name}..."
         curl -L -o plugin.zip "$plugin_url" && \
         unzip -o plugin.zip -d "$download_path" && \
         rm plugin.zip
