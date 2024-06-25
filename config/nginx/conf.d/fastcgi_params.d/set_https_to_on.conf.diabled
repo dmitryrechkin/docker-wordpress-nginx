@@ -1,0 +1,2 @@
+# It can be useful when x-forwarded-proto is not communicated by the reverse proxy
+fastcgi_param HTTPS 'on';

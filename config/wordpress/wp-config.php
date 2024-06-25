@@ -18,6 +18,13 @@ foreach ($_ENV as $key => $value) {
     }
 }
 
+// If we're behind a proxy server and using HTTPS, we need to alert Wordpress of that fact
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+} else if (isset($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], '"scheme":"https"') !== false) {
+   $_SERVER['HTTPS'] = 'on';
+}
+
 // we want to use SSL for MySQL connections
 if (!defined('MYSQL_CLIENT_FLAGS')) {
     define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);

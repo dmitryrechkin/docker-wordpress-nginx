@@ -34,6 +34,14 @@ server {
         access_log off;
     }
 
+    # Serve static files directly
+    location ~* ^.+\.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|rss|atom|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf)$ {
+        access_log off;
+        log_not_found off;
+        expires max;
+        add_header Cache-Control "public";
+    }
+
     # Based on https://codeable.io/wordpress-developers-intro-to-docker-part-two/
     #location /wp-content {
     #    root /var/www/html/wp-content;
@@ -65,7 +73,9 @@ server {
         include fastcgi_params;
 
         # Forward the scheme from upstream
-        fastcgi_param HTTPS $forwarded_scheme;
+        fastcgi_param HTTPS $forwarded_https_value;
+
+        include /etc/nginx/conf.d/fastcgi_params.d/*.conf;
     }
 
     # deny access to . files, for security
@@ -73,4 +83,7 @@ server {
         log_not_found off;
         deny all;
     }
+
+    # Include additional configuration files
+    include /etc/nginx/conf.d/vhost.d/*.conf;
 }
