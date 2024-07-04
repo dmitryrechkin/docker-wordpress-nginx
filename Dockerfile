@@ -46,6 +46,7 @@ RUN apk --update --no-cache add \
     php${PHP_VERSION_SUFFIX}-simplexml \
     php${PHP_VERSION_SUFFIX}-zip \
     php${PHP_VERSION_SUFFIX}-iconv \
+    php${PHP_VERSION_SUFFIX}-sqlite3 \
     php${PHP_VERSION_SUFFIX}-pecl-imagick \
     php${PHP_VERSION_SUFFIX}-redis \
     bash \
