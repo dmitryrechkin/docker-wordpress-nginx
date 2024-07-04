@@ -122,13 +122,69 @@ This Docker image supports various environment variables to configure WordPress 
 
 In general, it supports all possible WordPress settings via environment variables.
 
-## Customizing Plugins
+## Customizing Plugins and Themes
 
-You can customize the WordPress installation by specifying the plugins you want to include. Edit the `plugins-download-list.txt` file to add the URLs of the zip files for the plugins you wish to install. These plugins will be downloaded and installed automatically unless you mount a persistent volume with a ready-to-use WordPress installation.
+This project allows you to customize your WordPress installation by specifying plugins and themes you want to include. You can download and install them automatically or copy them directly into the respective directories. Below are the detailed instructions for customizing plugins and themes.
 
-By default, this project includes the `tidb-compatibility` plugin, as the aim is to use WordPress with a [TiDB serverless](https://tidb.cloud/) cluster. This plugin is pre-installed and automatically activated to ensure WordPress works seamlessly with TiDB.
+### Plugins
 
-For must-use plugins (MU-plugins) that should be automatically activated, you can edit the `mu-plugins-download-list.txt` file. Add the URLs of the zip files for the must-use plugins, and they will be downloaded and activated automatically.
+#### Download and Install Plugins
+
+1. **Edit the Plugin List:**
+   - Open the `config/wordpress/plugins-download-list.txt` file.
+   - Add the URLs of the zip files for the plugins you wish to install, each on a new line.
+
+2. **Automatic Download and Installation:**
+   - During the Docker build process, the script will read the URLs from `plugins-download-list.txt` and download and install each plugin into the `wp-content/plugins` directory.
+   - Example entry in `plugins-download-list.txt`:
+     ```
+     https://downloads.wordpress.org/plugin/example-plugin.zip
+     ```
+
+3. **Default Included Plugin:**
+   - By default, the `tidb-compatibility` plugin is included to ensure WordPress works seamlessly with a [TiDB serverless](https://tidb.cloud/) cluster. This plugin is pre-installed and activated automatically.
+
+#### Must-Use Plugins (MU-Plugins)
+
+1. **Edit the MU-Plugin List:**
+   - Open the `config/wordpress/mu-plugins-download-list.txt` file.
+   - Add the URLs of the zip files for the must-use plugins, each on a new line.
+
+2. **Automatic Download and Activation:**
+   - During the Docker build process, the script will read the URLs from `mu-plugins-download-list.txt` and download and activate each MU-plugin into the `wp-content/mu-plugins` directory.
+   - Example entry in `mu-plugins-download-list.txt`:
+     ```
+     https://downloads.wordpress.org/plugin/example-mu-plugin.zip
+     ```
+
+#### Copying Plugins Directly
+
+1. **Custom Plugins Directory:**
+   - You can also copy your plugins directly into the `config/wordpress/wp-content/plugins` directory.
+   - These plugins will be copied to the `wp-content/plugins` directory during the Docker build process.
+
+### Themes
+
+#### Download and Install Themes
+
+1. **Edit the Theme List:**
+   - Open the `config/wordpress/themes-download-list.txt` file.
+   - Add the URLs of the zip files for the themes you wish to install, each on a new line.
+
+2. **Automatic Download and Installation:**
+   - During the Docker build process, the script will read the URLs from `themes-download-list.txt` and download and install each theme into the `wp-content/themes` directory.
+   - Example entry in `themes-download-list.txt`:
+     ```
+     https://downloads.wordpress.org/theme/example-theme.zip
+     ```
+
+#### Copying Themes Directly
+
+1. **Custom Themes Directory:**
+   - You can also copy your themes directly into the `config/wordpress/wp-content/themes` directory.
+   - These themes will be copied to the `wp-content/themes` directory during the Docker build process.
+
+### Summary
 
 ## Configuration
 

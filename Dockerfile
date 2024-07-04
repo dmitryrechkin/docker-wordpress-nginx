@@ -115,18 +115,24 @@ RUN /usr/src/wordpress/generate_secrets.sh /usr/src/wordpress/wp-secrets.php
 # Copy the must use plugins
 RUN mkdir -p /usr/src/wordpress/wp-content/mu-plugins
 COPY --chown=nobody config/wordpress/wp-content/mu-plugins/* /usr/src/wordpress/wp-content/mu-plugins/
+COPY --chown=nobody config/wordpress/wp-content/plugins/* /usr/src/wordpress/wp-content/plugins/
+COPY --chown=nobody config/wordpress/wp-content/themes/* /usr/src/wordpress/wp-content/themes/
 
-# Copy the list of must plugins
-COPY --chown=nobody config/wordpress/plugins-download-list.txt /usr/src/wordpress/
+
+# Copy the list of the plugins and themes to download
 COPY --chown=nobody config/wordpress/mu-plugins-download-list.txt /usr/src/wordpress/
+COPY --chown=nobody config/wordpress/plugins-download-list.txt /usr/src/wordpress/
+COPY --chown=nobody config/wordpress/themes-download-list.txt /usr/src/wordpress/
 RUN chmod 640 /usr/src/wordpress/mu-plugins-download-list.txt
 RUN chmod 640 /usr/src/wordpress/plugins-download-list.txt
+RUN chmod 640 /usr/src/wordpress/themes-download-list.txt
 
 # Copy and run the plugin installation script
 COPY --chown=nobody root/download_plugins.sh /usr/src/wordpress/
 RUN chmod +x /usr/src/wordpress/download_plugins.sh
-RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/plugins-download-list.txt /usr/src/wordpress/wp-content/plugins
 RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/mu-plugins-download-list.txt /usr/src/wordpress/wp-content/mu-plugins
+RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/plugins-download-list.txt /usr/src/wordpress/wp-content/plugins
+RUN /usr/src/wordpress/download_plugins.sh /usr/src/wordpress/themes-download-list.txt /usr/src/wordpress/wp-content/themes
 
 # Remove the plugin installation script
 RUN rm /usr/src/wordpress/download_plugins.sh
